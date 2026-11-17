@@ -4,7 +4,8 @@
 const Dados = (function () {
   'use strict';
   const CFG = window.CONFIG || {};
-  const demo = !(CFG.SUPABASE_URL && CFG.SUPABASE_ANON_KEY);
+  // Abrir o endereço com ?demo no final força o modo demonstração (para brincar sem mexer nos dados reais)
+  const demo = /[?&]demo(=|&|$)/.test(location.search) || !(CFG.SUPABASE_URL && CFG.SUPABASE_ANON_KEY);
   const TABELAS = ['categorias', 'canais', 'faixas_taxa', 'fornecedores', 'fornecedor_produtos',
     'etiquetas_fornecedor', 'produtos', 'movimentacoes', 'custos_fixos'];
   const CONFIG_PADRAO = { embalagem_padrao: 1.5, imposto_pct: 0, adicional_cpf: 3, tipo_vendedor: 'CPF',
@@ -158,15 +159,19 @@ const Dados = (function () {
   const catsOrdenadas = () => ordenar(S.categorias);
   const canaisOrdenados = () => ordenar(S.canais);
   const cfg = () => Object.assign({}, CONFIG_PADRAO, S.configuracoes || {});
+  // Preferências compartilhadas (cartões do painel, metas, marcos). Ficam na coluna painel_cartoes, que é JSON livre.
+  const prefs = () => { const p = cfg().painel_cartoes; return Array.isArray(p) ? { cartoes: p } : (p && typeof p === 'object' ? p : {}); };
+  const salvarPrefs = patch => salvarConfig({ painel_cartoes: Object.assign({}, prefs(), patch) });
+  const ehArquivo = c => !!c && !/^(data:|emoji:)/.test(c);
 
   async function prepararFotos() {
-    const caminhos = S.produtos.map(p => p.foto).filter(f => f && !f.startsWith('data:'));
+    const caminhos = S.produtos.map(p => p.foto).filter(ehArquivo);
     if (demo || !caminhos.length) return;
     const { data, error } = await sb.storage.from('fotos').createSignedUrls(caminhos, 3600);
     if (error) return; // sem foto não impede de usar o sistema
     data.forEach(d => { if (d.signedUrl) fotoUrls[d.path] = d.signedUrl; });
   }
-  const urlFoto = caminho => !caminho ? null : caminho.startsWith('data:') ? caminho : (fotoUrls[caminho] || null);
+  const urlFoto = caminho => !caminho || caminho.startsWith('emoji:') ? null : caminho.startsWith('data:') ? caminho : (fotoUrls[caminho] || null);
 
   /* ───────── Escrita ───────── */
   async function inserirVarios(t, rows) {
@@ -203,11 +208,11 @@ const Dados = (function () {
     if (error) falhar(error);
     const { data } = await sb.storage.from('fotos').createSignedUrl(caminho, 3600);
     if (data) fotoUrls[caminho] = data.signedUrl;
-    if (antigo && !antigo.startsWith('data:')) sb.storage.from('fotos').remove([antigo]).catch(() => {});
+    if (ehArquivo(antigo)) sb.storage.from('fotos').remove([antigo]).catch(() => {});
     return caminho;
   }
   async function removerFoto(caminho) {
-    if (!demo && caminho && !caminho.startsWith('data:')) await sb.storage.from('fotos').remove([caminho]);
+    if (!demo && ehArquivo(caminho)) await sb.storage.from('fotos').remove([caminho]);
   }
 
   /* ───────── Carga inicial (Fase 7) e demonstração ───────── */
@@ -284,6 +289,6 @@ const Dados = (function () {
     await carregarTudo();
   }
 
-  return { demo, S, TABELAS, CONFIG_PADRAO, iniciar, entrar, sair, trocarSenha, aoMudarSessao, carregarTudo, idadeCarga, cfg, catsOrdenadas, canaisOrdenados,
+  return { demo, S, TABELAS, CONFIG_PADRAO, iniciar, entrar, sair, trocarSenha, aoMudarSessao, carregarTudo, idadeCarga, cfg, prefs, salvarPrefs, catsOrdenadas, canaisOrdenados,
     inserir, inserirVarios, atualizar, remover, salvarConfig, enviarFoto, removerFoto, urlFoto, prepararFotos, semear, reiniciarDemo, traduzir };
 })();

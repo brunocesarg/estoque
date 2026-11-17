@@ -16,6 +16,9 @@ const App = (function () {
     { id: 'estoque', rotulo: 'Estoque', icone: 'estoque' },
     { id: 'simulador', rotulo: 'Simulador de preço', icone: 'simular' },
     { id: 'fornecedores', rotulo: 'Fornecedores', icone: 'fornecedores' },
+    { id: 'planejamento', rotulo: 'Planejamento', icone: 'alerta' },
+    { id: 'ideias', rotulo: 'Ideias de produtos', icone: 'grade' },
+    { id: 'plataformas', rotulo: 'Plataformas', icone: 'link' },
     { id: 'ajustes', rotulo: 'Ajustes', icone: 'ajustes' }
   ];
 

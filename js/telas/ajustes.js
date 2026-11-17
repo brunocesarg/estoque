@@ -12,6 +12,9 @@ Telas.ajustes = (function () {
     { id: 'custos', t: 'Custos padrão', d: 'Embalagem, imposto, CPF ou CNPJ, custos fixos do mês', i: 'painel' },
     { id: 'metas', t: 'Metas e alertas', d: 'Margem mínima, estoque mínimo, produto parado, meta do mês', i: 'alerta' },
     { id: 'painel', t: 'Painel', d: 'Quais cartões aparecem e em que ordem', i: 'grade' },
+    { id: 'planejamento', t: 'Planejamento de metas', d: 'Metas por mês, semestre e ano', i: 'painel', href: '#/planejamento' },
+    { id: 'ideias', t: 'Ideias de produtos', d: 'Candidatos para ampliar o catálogo', i: 'estoque', href: '#/ideias' },
+    { id: 'plataformas', t: 'Plataformas', d: 'Onde vender, considerando as taxas', i: 'simular', href: '#/plataformas' },
     { id: 'fornecedores', t: 'Fornecedores', d: 'Abrir a lista de fornecedores', i: 'fornecedores', href: '#/fornecedores' },
     { id: 'dados', t: 'Dados', d: 'Exportar tudo em planilha e carga inicial', i: 'copiar' },
     { id: 'conta', t: 'Conta', d: 'Trocar senha e sair', i: 'sair' }
@@ -227,7 +230,7 @@ Telas.ajustes = (function () {
         ${campo('Margem mínima desejada (%)', 'margem', { dec: true, valor: UI.campoNum(c.margem_minima_pct), dica: 'Produtos abaixo disso aparecem como alerta no painel.' })}
         ${campo('Estoque mínimo padrão (unidades)', 'minimo', { dec: true, valor: c.estoque_minimo_padrao, dica: 'Vale para o produto que não tem mínimo próprio.' })}
         ${campo('Dias sem vender para considerar parado', 'dias', { dec: true, valor: c.dias_parado })}
-        ${campo('Meta de lucro do mês (R$)', 'meta', { dec: true, valor: UI.campoNum(c.meta_lucro_mes), dica: 'Deixe 0 para não usar meta.' })}
+        ${campo('Meta de lucro do mês (R$)', 'meta', { dec: true, valor: UI.campoNum(c.meta_lucro_mes), dica: 'Vale para os meses sem meta própria no planejamento. Deixe 0 para não usar.' })}
         <button class="btn primario bloco" type="submit">Salvar</button></form>`;
   }
   UI.aoEnviar.metas = (f, d) => salvarOk(() => Dados.salvarConfig({ margem_minima_pct: num(d.get('margem')) ?? 0, estoque_minimo_padrao: Math.round(num(d.get('minimo')) ?? 0),
@@ -245,14 +248,14 @@ Telas.ajustes = (function () {
       <p class="mudo" style="margin:10px 4px;font-size:.82rem">Os cartões escondidos continuam acessíveis: o painel não mostra, mas a conta segue sendo feita.</p>
       <button type="button" class="btn sec bloco" data-acao="pn.padrao">Restaurar o padrão</button>`;
   }
-  const salvarPainel = lista => Dados.salvarConfig({ painel_cartoes: lista.map(c => ({ id: c.id, v: c.v })) });
+  const salvarPainel = lista => Dados.salvarPrefs({ cartoes: lista.map(c => ({ id: c.id, v: c.v })) });
   UI.aoMudar['pn.ver'] = el => salvarOk(async () => { const l = Telas.painel.cartoesConfig(); l.find(c => c.id === el.dataset.id).v = el.checked; await salvarPainel(l); });
   UI.acoes['pn.mover'] = d => salvarOk(async () => {
     const l = Telas.painel.cartoesConfig(), i = l.findIndex(c => c.id === d.id), j = i + Number(d.dir);
     if (j < 0 || j >= l.length) return;
     [l[i], l[j]] = [l[j], l[i]]; await salvarPainel(l); App.atualizar();
   }, 'Ordem salva');
-  UI.acoes['pn.padrao'] = () => salvarOk(async () => { await Dados.salvarConfig({ painel_cartoes: null }); App.atualizar(); }, 'Padrão restaurado');
+  UI.acoes['pn.padrao'] = () => salvarOk(async () => { await Dados.salvarPrefs({ cartoes: null }); App.atualizar(); }, 'Padrão restaurado');
 
   /* ───────── Dados ───────── */
   function dados() {

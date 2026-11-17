@@ -358,3 +358,20 @@ details.taxas summary { cursor: pointer; font-size: .85rem; font-weight: 600; co
 .canais-grade { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 12px; }
 .canais-grade .card + .card { margin-top: 0; }
 @media (min-width: 900px) { .canais-grade { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); } }
+
+/* ───────── Crescer: ilustrações, planejamento, plataformas ───────── */
+.thumb.ilustra span { font-size: 1.5em; line-height: 1; }
+.meta-input { width: 100%; min-width: 84px; min-height: 36px !important; padding: 4px 8px !important; text-align: right; font-size: 15px !important; }
+.tab tr.sub td { font-weight: 700; background: var(--acento-suave); }
+.tab tr.atual td:first-child { box-shadow: inset 3px 0 0 var(--acento); }
+.marco { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--linha); cursor: pointer; }
+.marco:last-child { border-bottom: 0; }
+.marco input { width: 22px; height: 22px; margin-top: 2px; flex: none; accent-color: var(--acento-bg); }
+.marco b { display: block; font-size: .92rem; } .marco span { color: var(--txt2); font-size: .8rem; }
+.marco.feito b { text-decoration: line-through; color: var(--txt2); }
+.lista-pontos { margin: 6px 0 0; padding-left: 18px; font-size: .84rem; color: var(--txt2); line-height: 1.5; }
+.ideia-topo { display: flex; gap: 12px; align-items: center; }
+.ideia-topo .thumb { width: 56px; height: 56px; border-radius: 16px; }
+.ideias-grade { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.ideias-grade .card + .card { margin-top: 0; }
+@media (min-width: 900px) { .ideias-grade { grid-template-columns: 1fr 1fr; } }

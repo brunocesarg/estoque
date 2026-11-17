@@ -16,6 +16,7 @@ Telas.painel = (function () {
     { id: 'reposicao', titulo: 'Reposição', desc: 'Produtos abaixo do mínimo, com sugestão de compra', padrao: true },
     { id: 'parados', titulo: 'Produtos parados', desc: 'Sem venda há muito tempo e o dinheiro preso', padrao: true },
     { id: 'equilibrio', titulo: 'Ponto de equilíbrio', desc: 'Vendas que faltam para cobrir os custos fixos', padrao: true },
+    { id: 'meta', titulo: 'Meta do mês', desc: 'Lucro do mês contra a meta do planejamento', padrao: true },
     { id: 'projecao', titulo: 'Projeção do mês', desc: 'Lucro estimado mantendo o ritmo atual', padrao: false },
     { id: 'abc', titulo: 'Curva ABC', desc: 'Quais produtos geram 80% do lucro', padrao: false },
     { id: 'lotes', titulo: 'Retorno por lote', desc: 'Quanto cada compra já devolveu e em quantos dias se pagou', padrao: false },
@@ -30,7 +31,7 @@ Telas.painel = (function () {
 
   // Cartões na ordem e com a visibilidade escolhidas em Ajustes > Painel
   function cartoesConfig() {
-    const salvo = Array.isArray(Dados.cfg().painel_cartoes) ? Dados.cfg().painel_cartoes : [];
+    const salvo = Array.isArray(Dados.prefs().cartoes) ? Dados.prefs().cartoes : [];
     const out = [];
     for (const s of salvo) { const c = info(s.id); if (c && !out.find(o => o.id === c.id)) out.push(Object.assign({}, c, { v: !!s.v })); }
     for (const c of CATALOGO) if (!out.find(o => o.id === c.id)) out.push(Object.assign({}, c, { v: c.padrao }));
@@ -102,7 +103,9 @@ Telas.painel = (function () {
       return { p, un, medio, giro: medio > 0 ? un / medio : null, cobertura: r > 0 ? c.idx[p.id].estoque / r : null, estoque: c.idx[p.id].estoque };
     });
   }
+  const metaDoMes = c => Telas.planejamento.metaMes(c.hoje.slice(0, 7));
   const cartoes = {
+    meta: c => { const e = calcEquilibrio(c), m = metaDoMes(c); return m > 0 ? { valor: pct(Math.max(e.lucro, 0) / m), sub: `${moeda0(e.lucro)} de ${moeda0(m)} no mês` } : { valor: 'Sem meta', sub: 'defina no planejamento' }; },
     lucro: c => ({ valor: moeda(c.R.lucro), sub: variacao(c.R.lucro, c.Ra && c.Ra.lucro) }),
     faturamento: c => ({ valor: moeda(c.R.receita), sub: variacao(c.R.receita, c.Ra && c.Ra.receita) }),
     margem: c => ({ valor: pct(c.R.margem, 1), sub: c.R.margem === null ? '' : (c.R.margem * 100 < c.cfg.margem_minima_pct ? h`<span class="neg">abaixo do mínimo de ${decimal(c.cfg.margem_minima_pct, 0)}%</span>` : h`<span class="pos">acima do mínimo de ${decimal(c.cfg.margem_minima_pct, 0)}%</span>`) }),
@@ -176,7 +179,9 @@ Telas.painel = (function () {
       <div class="dois-cols">
         ${UI.secao('Lucro por categoria', h`<div class="card">${barrasCat(c)}</div>`)}
         ${UI.secao('Lucro por canal', h`<div class="card">${barrasCanal(c)}</div>`)}</div>
-      ${alertas(c)}`;
+      ${alertas(c)}
+      ${UI.secao('Crescer', h`<div class="card lista">${[['#/planejamento', 'painel', 'Planejamento de metas', 'Mês, semestre e ano, limite do MEI e próximos passos'], ['#/ideias', 'estoque', 'Ideias de produtos', 'Candidatos para ampliar o catálogo, com lucro simulado'], ['#/plataformas', 'simular', 'Plataformas', 'Onde vender cada produto, considerando as taxas']]
+        .map(([href, i, t, d]) => h`<a class="linha" href="${href}"><span class="btn-icone">${ic(i)}</span><div class="meio"><b>${t}</b><span>${d}</span></div>${ic('seta', 'seta')}</a>`)}</div>`)}`;
   }
   function barrasCat(c, campo = 'lucro') {
     const g = Calc.agruparResumo(c.vp, m => catDe(c, m)).sort((a, b) => b[campo] - a[campo]);
@@ -213,6 +218,10 @@ Telas.painel = (function () {
   const grande = (valor, sub) => h`<div class="card"><div class="numerao">${valor}</div>${sub ? h`<div class="mudo" style="margin-top:4px;font-size:.88rem">${sub}</div>` : ''}</div>`;
 
   const detalhes = {
+    meta: c => { const e = calcEquilibrio(c), m = metaDoMes(c);
+      return h`${grande(m > 0 ? pct(Math.max(e.lucro, 0) / m) : 'Sem meta', m > 0 ? `${moeda(e.lucro)} de ${moeda(m)} em ${UI.mesAno(c.hoje)}` : 'Defina a meta de cada mês no planejamento')}
+        ${m > 0 ? h`<div class="card" style="margin-top:10px"><div class="barra-trilho"><span class="barra-preench" style="width:${Math.min(Math.max(e.lucro / m, 0), 1) * 100}%"></span></div><small>Projeção do mês no ritmo atual: ${moeda(e.projecao)}</small></div>` : ''}
+        <a class="btn primario bloco" style="margin-top:14px" href="#/planejamento">Abrir o planejamento</a>`; },
     lucro: c => h`${grande(moeda(c.R.lucro), variacao(c.R.lucro, c.Ra && c.Ra.lucro))}
       ${UI.secao('Evolução por dia', grafico('g-detalhe'))}
       ${UI.secao('Para onde foi cada real', h`<div class="card">${paraOndeFoi(c)}</div>`)}
@@ -265,7 +274,7 @@ Telas.painel = (function () {
           l.map(x => [linkProd(c, x.p.id), x.i.estoque, x.nunca ? `${x.dias} dias (nunca vendeu)` : `${x.dias} dias`, h`<b>${moeda(x.i.valorEstoque)}</b>`]), 'Nenhum produto parado.')}</div>`)}`;
     },
     equilibrio: c => {
-      const e = calcEquilibrio(c), meta = c.cfg.meta_lucro_mes;
+      const e = calcEquilibrio(c), meta = metaDoMes(c);
       return h`<div class="aviso-caixa">Este cálculo olha o mês inteiro e não usa os filtros de período, categoria e canal.</div>
         ${grande(e.fixos === 0 ? 'Sem custos fixos' : e.resultado >= 0 ? 'Custos cobertos' : (e.faltam === null ? 'Sem lucro ainda' : `Faltam ${e.faltam} vendas`), `${UI.mesAno(c.hoje)}`)}
         <div class="card" style="margin-top:10px"><div class="dupla">
@@ -279,7 +288,7 @@ Telas.painel = (function () {
         ${meta > 0 ? UI.secao('Meta de lucro do mês', h`<div class="card"><b>${moeda(e.lucro)}</b> de ${moeda(meta)}<div class="barra-trilho" style="margin-top:8px"><span class="barra-preench" style="width:${Math.min(Math.max(e.lucro / meta, 0), 1) * 100}%"></span></div><small>${pct(Math.max(e.lucro, 0) / meta)} da meta</small></div>`) : ''}`;
     },
     projecao: c => {
-      const e = calcEquilibrio(c), meta = c.cfg.meta_lucro_mes;
+      const e = calcEquilibrio(c), meta = metaDoMes(c);
       return h`<div class="aviso-caixa">Este cálculo olha o mês inteiro e não usa os filtros de período, categoria e canal.</div>
         ${grande(moeda(e.projecao), `lucro estimado para ${UI.mesAno(c.hoje)}, mantendo o ritmo (dia ${e.dia} de ${e.dias})`)}
         <div class="card" style="margin-top:10px"><div class="dupla">

@@ -79,3 +79,15 @@ Os testes reproduzem os oito lucros da tabela de `pesquisa-produtos.md` (R$ 27,4
 
 - Projetos gratuitos do Supabase podem ser pausados por inatividade. Se o sistema ficar sem uso por semanas e parar de abrir, entre no painel do Supabase e clique em **Restore**. Confirme a regra atual no site.
 - Faça uma planilha de backup por mês em **Ajustes > Dados > Baixar planilha**.
+
+## Crescer (adicionado em 16/11/2026)
+
+Três telas novas, no menu do PC e, no celular, no fim do Painel e em Ajustes:
+
+- **Planejamento**: meta de lucro por mês, semestre e ano. Informe a meta anual e o sistema divide pelos meses (igual, crescente ou sazonal). Mostra quanto falta no mês, quanto precisa por dia, o faturamento contra o limite do MEI e uma lista de próximos passos.
+- **Ideias de produtos**: 16 candidatos (pet, moto, carro, casa) com lucro simulado nos seus canais. Os custos são estimativas sem cotação. "Adicionar como candidato" cria o produto inativo, com ilustração provisória; a foto de verdade você tira pela câmera na ficha do produto.
+- **Plataformas**: indica onde vender cada produto considerando as taxas de 9 plataformas, com guia de cada uma e as fontes. Os botões para adicionar um canal, trocar taxas ou zerar o adicional de CPF só agem quando você toca neles.
+
+As metas e os próximos passos ficam guardados no banco, na coluna `painel_cartoes` da tabela `configuracoes`, sem precisar rodar SQL de novo.
+
+Para brincar sem mexer nos dados reais, abra o endereço com `?demo` no final.

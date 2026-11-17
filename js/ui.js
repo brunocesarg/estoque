@@ -246,7 +246,8 @@ const UI = (function () {
     if (url) return h`<div class="thumb ${cls}"><img src="${url}" alt="" loading="lazy"></div>`;
     const cat = cats && p ? cats.find(c => c.id === p.categoria_id) : null;
     const base = (cat && cat.cor) || '#8a8fa8';
-    return h`<div class="thumb ${cls}" style="background:linear-gradient(135deg, ${base}, ${base}99)"><span>${(p && p.nome || '?').trim().charAt(0).toUpperCase()}</span></div>`;
+    const emoji = p && p.foto && p.foto.startsWith('emoji:') ? p.foto.slice(6) : null;
+    return h`<div class="thumb ${cls}${emoji ? ' ilustra' : ''}" style="background:linear-gradient(135deg, ${base}, ${base}99)"><span>${emoji || (p && p.nome || '?').trim().charAt(0).toUpperCase()}</span></div>`;
   }
 
   // Foto: lê o arquivo, reduz para no máximo 1200 px e comprime para cerca de 200 KB
