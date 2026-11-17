@@ -35,7 +35,7 @@ Telas.estoque = (function () {
       <div class="chips" id="est-cats">${catChips(cats)}</div>
       <div style="display:flex;align-items:center;gap:12px;margin:6px 0 12px;justify-content:space-between">
         ${UI.seg('vista', [{ v: 'grade', t: 'Grade' }, { v: 'lista', t: 'Lista' }], f.vista, 'est.vista')}
-        ${inativosN ? h`<label class="linha-int" style="gap:8px;padding:0"><small>Inativos (${inativosN})</small><input type="checkbox" class="int" ${f.inativos ? 'checked' : ''} data-muda="est.inativos"></label>` : ''}</div>
+        ${inativosN ? h`<small>${ativos.length} ativos · ${inativosN} candidatos</small>` : ''}</div>
       <div id="est-itens">${itens(idx)}</div>`;
   }
   function catChips(cats) {
@@ -45,12 +45,18 @@ Telas.estoque = (function () {
   }
   function filtrados(idx) {
     const q = f.busca.trim().toLowerCase();
-    return S.produtos.filter(p => (f.inativos || p.ativo) && (f.categoria === 'todas' || p.categoria_id === f.categoria)
+    return S.produtos.filter(p => (f.categoria === 'todas' || p.categoria_id === f.categoria)
       && (!q || (p.nome + ' ' + (p.codigo || '')).toLowerCase().includes(q)))
       .sort((a, b) => (b.ativo - a.ativo) || a.nome.localeCompare(b.nome, 'pt-BR'));
   }
   function itens(idx) {
-    const ps = filtrados(idx), cats = S.categorias;
+    const todos = filtrados(idx), at = todos.filter(p => p.ativo), cand = todos.filter(p => !p.ativo);
+    if (!todos.length || !cand.length) return grupo(todos, idx);
+    return h`${at.length ? grupo(at, idx) : h`<div class="info-caixa">Nenhum produto ativo ainda. Um candidato vira ativo sozinho quando você lança a primeira <b>Entrada</b> de compra.</div>`}
+      ${UI.secao(`Candidatos (${cand.length})`, grupo(cand, idx), h`<small>da pesquisa de mercado, ainda sem compra</small>`)}`;
+  }
+  function grupo(ps, idx) {
+    const cats = S.categorias;
     if (!ps.length) return UI.vazio(S.produtos.length ? 'Nenhum produto neste filtro.' : 'Nenhum produto cadastrado ainda.',
       S.produtos.length ? '' : h`<button type="button" class="btn primario" data-acao="est.novo">${ic('mais')} Cadastrar produto</button>`);
     if (f.vista === 'lista') {
@@ -96,6 +102,7 @@ Telas.estoque = (function () {
     return h`${UI.cabecalho({ titulo: p.nome, voltar: '#/estoque', sub: [nomeCat(p.categoria_id), p.codigo].filter(Boolean).join(' · '),
       acoes: h`<button type="button" class="btn-icone" data-acao="est.editar" data-id="${p.id}" aria-label="Editar">${ic('editar')}</button>` })}
       ${UI.miniatura(p, cats, 'grande')}
+      ${creditoFoto(p)}
       ${p.ativo ? '' : h`<div class="aviso-caixa" style="margin-top:12px">Produto inativo (candidato). Não aparece nos alertas do painel. Ative ao fazer a primeira compra.</div>`}
       <div class="card" style="margin-top:12px"><div class="dupla">
         <div class="dado"><div class="rot">Em estoque</div><div class="val ${idx.estoque <= 0 ? 'neg' : baixo ? 'aviso-txt' : ''}">${inteiro(idx.estoque)}</div><small>mínimo ${minimoDe(p)}</small></div>
@@ -115,6 +122,11 @@ Telas.estoque = (function () {
         : UI.vazio('Nenhuma cotação ligada a este produto. Cadastre na ficha do fornecedor.')}</div>`)}
       ${UI.secao('Últimos lançamentos', h`<div class="card lista">${movs.length ? movs.map(m => linhaMov(m)) : UI.vazio('Nenhum lançamento ainda.')}</div>`)}
       <div style="margin-top:24px;text-align:center"><button type="button" class="btn-texto neg" data-acao="est.excluir" data-id="${p.id}">Excluir produto</button></div>`;
+  }
+  function creditoFoto(p) {
+    const m = p.foto && p.foto.match(/^img\/produtos\/(.+)\.jpg$/), c = m && DadosFotos[m[1]];
+    if (!c) return '';
+    return h`<small style="display:block;margin:6px 4px 0">${c.ilustrativa ? 'Foto ilustrativa (não é o item do fornecedor)' : 'Foto de referência'}: <a href="${c.pagina}" target="_blank" rel="noopener" style="text-decoration:underline">${c.autor}</a>, ${c.licenca}. Troque pela sua em Editar.</small>`;
   }
   function linhaMov(m) {
     const lucro = Calc.lucroMov(m), q = Calc.deltaEstoque(m);

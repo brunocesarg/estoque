@@ -109,11 +109,66 @@ const DadosCrescer = (function () {
     ['Limite do MEI 2026 (Contmatic)', 'https://simplifique.contmatic.com.br/blogs/mei-2026-limite-faturamento-o-que-muda']
   ];
 
+  // Foto de cada ideia (mesma ordem da lista) e dos produtos da primeira pesquisa
+  ['kit-viagem-pet', 'cinto-pet', 'bebedouro-pet', 'tapete-higienico', 'antena-corta-pipa', 'suporte-celular-moto', 'trava-disco', 'luva-moto', 'kit-inverno-moto',
+    'suporte-magnetico', 'organizador-banco', 'protetor-solar', 'lixeira-carro', 'aspirador-carro', 'kit-organizacao', 'garrafa-termica'].forEach((f, i) => { ideias[i].foto = f; });
+  const fotosIniciais = { 'Capa pet para banco de carro': 'capa-pet', 'Capa de chave em silicone (kit 2)': 'capa-chave', 'Capa de chave em silicone (1 un.)': 'capa-chave',
+    'Balaclava (kit 5)': 'balaclava', 'Balaclava (kit 3)': 'balaclava', 'Organizador de porta-malas': 'organizador-porta-malas', 'Capa de volante': 'capa-volante', 'Capa de chuva para motoqueiro': 'capa-chuva' };
+
+  /* Dicas de mercado: cada uma com o dado, o que fazer com ele e a fonte. Pesquisa de 16 e 17/11/2026. */
+  const dicas = [
+    { tema: 'Pet', dado: 'O setor pet deve faturar R$ 81,35 bilhões em 2026, alta de 4,35%, segundo a Abempet. O comércio pela internet é cerca de 8% disso (perto de R$ 6,9 bilhões) e a ração responde por mais da metade.',
+      acao: 'Acessório é a fatia menor e menos disputada pelos gigantes da ração. Sua capa pet já é o melhor candidato: some o cinto de segurança e venda o kit viagem, que passa de R$ 100.',
+      fonte: ['Cães e Gatos: setor pet projeta R$ 81 bi', 'https://caesegatos.com.br/setor-pet-brasileiro-projeta-r-813-bilhoes-em-2026-mas-alta-carga-tributaria-limita-crescimento-do-mercado/'] },
+    { tema: 'Moto', dado: 'De janeiro a setembro de 2026 foram emplacadas 1.783.972 motos, recorde para o período e 10,5% acima de 2025. A Abraciclo projeta 2,35 milhões no ano.',
+      acao: 'Cada moto nova é um comprador de balaclava, luva, suporte de celular e trava. Priorize os itens de uso diário de quem trabalha com a moto, que repõe e indica.',
+      fonte: ['Motociclismo: Abraciclo eleva projeções para 2026', 'https://motociclismoonline.com.br/noticias/abraciclo-eleva-projecoes-para-motos-em-2026/'] },
+    { tema: 'Moto', dado: 'No Mapa Shopee 2026, autopeças e acessórios para motocicletas foram a categoria líder em 7 estados do Nordeste.',
+      acao: 'Na Shopee, anuncie os itens de moto pensando nesse público: título com o modelo de moto popular (CG, Biz, Pop) e atenção ao prazo de entrega para o Nordeste.',
+      fonte: ['Hunterhub: produtos mais vendidos na Shopee em 2026', 'https://hunterhub.com.br/blog/produtos-mais-vendidos-na-shopee/'] },
+    { tema: 'Carro', dado: 'Em um levantamento da Seconds com lojistas do Mercado Livre, acessórios automotivos foram 47,26% dos itens vendidos pela plataforma dela. A frota brasileira está crescendo e envelhecendo.',
+      acao: 'Acessório universal (serve em qualquer carro) evita devolução por modelo errado: organizador, protetor solar, suporte de celular, lixeira. Deixe capa de chave e de volante para quando tiver avaliações, porque dependem de modelo e medida.',
+      fonte: ['Portal da Autopeça: acessórios lideram vendas online', 'https://portaldaautopeca.com.br/noticias/local/acessorios-automotivos-lideram-vendas-online-entre-lojistas-no-mercado-livre/'] },
+    { tema: 'Kits', dado: 'Guias de vendedores apontam que kits de produtos complementares aumentam o valor de cada pedido e diluem a comissão e o frete. Em 2026 o Mercado Livre reduziu o subsídio ao frete grátis, e o custo passou a pesar mais para o vendedor.',
+      acao: 'Monte kits que passem de R$ 100 (capa pet + cinto, balaclava + luva, organização do carro). Na Shopee a comissão cai de 20% para 14% e você paga uma taxa fixa por pedido em vez de duas.',
+      fonte: ['LojaHub: kits de produtos em marketplace', 'https://lojahub.com.br/blog/kit-produto-marketplace-estrategia/'] },
+    { tema: 'Preço', dado: 'A Shopee cobra 20% + R$ 4,50 até R$ 79,99 e 14% + R$ 16 de R$ 80 a R$ 99,99. Um item de R$ 85 paga R$ 27,90 de taxa; a R$ 79,90 paga R$ 20,48.',
+      acao: 'Fuja da faixa de R$ 80 a R$ 99,99 na Shopee: ou fica em R$ 79,90, ou sobe para R$ 100 com kit. Use o Simulador antes de definir qualquer preço.',
+      fonte: ['Kntria: taxas da Shopee 2026', 'https://kntria.com.br/guia/taxas-da-shopee/'] },
+    { tema: 'Canais', dado: 'O TikTok Shop cobra 6% + R$ 6 a partir de R$ 50 e oferece 0% de comissão por 60 dias a vendedores novos que cumprem a missão de entrada (até R$ 17 mil em vendas).',
+      acao: 'Produto que demonstra bem em vídeo (capa pet com o cachorro, bebedouro, aspirador) vale um teste no TikTok Shop como segundo canal. Confirme antes se aceita cadastro com CPF.',
+      fonte: ['TikTok Shop: guia 2026 de comissões (oficial)', 'https://seller.tiktok.com/br/blog/guia-2026-comiss-es-e-taxas-do-tiktok-shop-explicadas/10025289/'] },
+    { tema: 'Formalização', dado: 'O limite do MEI em 2026 segue em R$ 81 mil por ano e a guia mensal do comércio é de R$ 82,05. Vários fornecedores e plataformas (Shein, Magalu) só aceitam CNPJ.',
+      acao: 'Abrir o MEI cedo libera fornecedores de atacado, nota fiscal e mais plataformas. Acompanhe o faturamento contra o limite no Planejamento.',
+      fonte: ['Contmatic: limite do MEI 2026', 'https://simplifique.contmatic.com.br/blogs/mei-2026-limite-faturamento-o-que-muda'] }
+  ];
+  // Datas de venda. "antes" = dias de antecedência para ter estoque e anúncio prontos.
+  const datas = [
+    { d: '2026-11-27', t: 'Black Friday', o: 'Kits e itens acima de R$ 100. Estoque precisa estar em casa antes.', antes: 20 },
+    { d: '2026-12-25', t: 'Natal', o: 'Presentes: garrafa térmica, kit viagem pet, kit inverno. Última postagem segura por volta do dia 15.', antes: 30 },
+    { d: '2027-02-08', t: 'Carnaval', o: 'Viagem de carro: capa pet, organizadores, protetor solar.', antes: 20 },
+    { d: '2027-03-15', t: 'Dia do Consumidor', o: 'Segunda maior data de promoções do primeiro semestre.', antes: 20 },
+    { d: '2027-05-09', t: 'Dia das Mães', o: 'Presentes e itens de pet.', antes: 25 },
+    { d: '2027-06-01', t: 'Começo do frio', o: 'Balaclava, luva e kit inverno vendem de maio a agosto.', antes: 30 },
+    { d: '2027-07-27', t: 'Dia do Motociclista', o: 'Bom gancho para promoção de acessórios de moto.', antes: 20 },
+    { d: '2027-08-08', t: 'Dia dos Pais', o: 'Acessórios de carro e moto como presente.', antes: 25 },
+    { d: '2027-09-09', t: '9.9 (data dupla)', o: 'Campanha de um dia nas plataformas. Confirme o calendário na Shopee.', antes: 15 },
+    { d: '2027-09-15', t: 'Dia do Cliente', o: 'Boa data para venda direta a quem já comprou.', antes: 15 },
+    { d: '2027-10-10', t: '10.10 (data dupla)', o: 'Campanha de um dia nas plataformas.', antes: 15 },
+    { d: '2027-11-26', t: 'Black Friday 2027', o: 'A maior data do ano.', antes: 30 }
+  ];
+  fontes.push(['Setor pet projeta R$ 81 bi em 2026 (Cães e Gatos)', 'https://caesegatos.com.br/setor-pet-brasileiro-projeta-r-813-bilhoes-em-2026-mas-alta-carga-tributaria-limita-crescimento-do-mercado/'],
+    ['Abraciclo eleva projeções para motos em 2026 (Motociclismo)', 'https://motociclismoonline.com.br/noticias/abraciclo-eleva-projecoes-para-motos-em-2026/'],
+    ['Acessórios automotivos lideram vendas online (Portal da Autopeça)', 'https://portaldaautopeca.com.br/noticias/local/acessorios-automotivos-lideram-vendas-online-entre-lojistas-no-mercado-livre/'],
+    ['Kits de produtos em marketplace (LojaHub)', 'https://lojahub.com.br/blog/kit-produto-marketplace-estrategia/'],
+    ['Datas comemorativas 2026 e 2027 (Sellit)', 'https://www.sellitbr.com/blog/datas-comemorativas-para-vender-mais'],
+    ['Calendário comercial do varejo (Connect Week)', 'https://www.connectweek.com.br/artigo/calendario-comercial-varejo-2026-2027']);
+
   // Avisos que dependem do preço e que a conta não cobre
   const ML = p => p >= 79 ? 'Falta descontar o frete grátis, que a partir de R$ 79 é em parte por sua conta.' : null;
   const NOTAS = { 'ml-classico': ML, 'ml-premium': ML, tiktok: () => 'Sem o programa de frete grátis (mais 6%) e sem afiliados.',
     shopee: p => p >= 80 && p < 100 ? 'Faixa ruim: taxa fixa de R$ 16. Compare com R$ 79,90 ou com R$ 100.' : null, direta: () => 'Você cuida da entrega e da cobrança.' };
   plataformas.forEach(p => { p.nota = NOTAS[p.id] || (() => null); });
 
-  return { DATA, plataformas, ideias, marcos, fontes, LIMITE_MEI: 81000, DAS_MEI: 82.05 };
+  return { DATA, plataformas, ideias, marcos, fontes, fotosIniciais, dicas, datas, LIMITE_MEI: 81000, DAS_MEI: 82.05 };
 })();

@@ -12,6 +12,7 @@ Telas.ajustes = (function () {
     { id: 'custos', t: 'Custos padrão', d: 'Embalagem, imposto, CPF ou CNPJ, custos fixos do mês', i: 'painel' },
     { id: 'metas', t: 'Metas e alertas', d: 'Margem mínima, estoque mínimo, produto parado, meta do mês', i: 'alerta' },
     { id: 'painel', t: 'Painel', d: 'Quais cartões aparecem e em que ordem', i: 'grade' },
+    { id: 'dicas', t: 'Dicas de mercado', d: 'O que os dados dizem e o que fazer', i: 'ok', href: '#/dicas' },
     { id: 'planejamento', t: 'Planejamento de metas', d: 'Metas por mês, semestre e ano', i: 'painel', href: '#/planejamento' },
     { id: 'ideias', t: 'Ideias de produtos', d: 'Candidatos para ampliar o catálogo', i: 'estoque', href: '#/ideias' },
     { id: 'plataformas', t: 'Plataformas', d: 'Onde vender, considerando as taxas', i: 'simular', href: '#/plataformas' },
@@ -271,7 +272,7 @@ Telas.ajustes = (function () {
       ${Dados.demo ? UI.secao('Demonstração', h`<div class="card"><p class="mudo" style="margin-bottom:12px;font-size:.88rem">Apaga tudo o que você mexeu e volta aos dados de exemplo.</p>
         <button type="button" class="btn perigo bloco" data-acao="dados.reiniciar">Reiniciar demonstração</button></div>`) : ''}`;
   }
-  UI.acoes['dados.semear'] = (d, el) => UI.ocupado(el, async () => { await Dados.semear(); App.atualizar(); UI.aviso('Dados da pesquisa carregados'); });
+  UI.acoes['dados.semear'] = (d, el) => UI.ocupado(el, async () => { await Dados.semear(); await Dados.importarCatalogo(); App.atualizar(); UI.aviso('Dados da pesquisa carregados'); });
   UI.acoes['dados.reiniciar'] = async (d, el) => {
     if (await UI.confirmar({ titulo: 'Reiniciar demonstração', texto: 'Apagar os dados desta demonstração e começar de novo?', ok: 'Reiniciar', perigo: true }))
       await UI.ocupado(el, async () => { await Dados.reiniciarDemo(); App.atualizar(); UI.aviso('Demonstração reiniciada'); });

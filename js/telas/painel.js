@@ -180,7 +180,7 @@ Telas.painel = (function () {
         ${UI.secao('Lucro por categoria', h`<div class="card">${barrasCat(c)}</div>`)}
         ${UI.secao('Lucro por canal', h`<div class="card">${barrasCanal(c)}</div>`)}</div>
       ${alertas(c)}
-      ${UI.secao('Crescer', h`<div class="card lista">${[['#/planejamento', 'painel', 'Planejamento de metas', 'Mês, semestre e ano, limite do MEI e próximos passos'], ['#/ideias', 'estoque', 'Ideias de produtos', 'Candidatos para ampliar o catálogo, com lucro simulado'], ['#/plataformas', 'simular', 'Plataformas', 'Onde vender cada produto, considerando as taxas']]
+      ${UI.secao('Crescer', h`<div class="card lista">${[['#/dicas', 'ok', 'Dicas de mercado', 'O que os dados de pet, moto e carro dizem e o que fazer'], ['#/planejamento', 'painel', 'Planejamento de metas', 'Mês, semestre e ano, limite do MEI e próximos passos'], ['#/ideias', 'estoque', 'Ideias de produtos', 'Candidatos para ampliar o catálogo, com lucro simulado'], ['#/plataformas', 'simular', 'Plataformas', 'Onde vender cada produto, considerando as taxas']]
         .map(([href, i, t, d]) => h`<a class="linha" href="${href}"><span class="btn-icone">${ic(i)}</span><div class="meio"><b>${t}</b><span>${d}</span></div>${ic('seta', 'seta')}</a>`)}</div>`)}`;
   }
   function barrasCat(c, campo = 'lucro') {

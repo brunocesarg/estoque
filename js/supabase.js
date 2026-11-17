@@ -162,7 +162,7 @@ const Dados = (function () {
   // Preferências compartilhadas (cartões do painel, metas, marcos). Ficam na coluna painel_cartoes, que é JSON livre.
   const prefs = () => { const p = cfg().painel_cartoes; return Array.isArray(p) ? { cartoes: p } : (p && typeof p === 'object' ? p : {}); };
   const salvarPrefs = patch => salvarConfig({ painel_cartoes: Object.assign({}, prefs(), patch) });
-  const ehArquivo = c => !!c && !/^(data:|emoji:)/.test(c);
+  const ehArquivo = c => !!c && !/^(data:|emoji:|img\/)/.test(c);
 
   async function prepararFotos() {
     const caminhos = S.produtos.map(p => p.foto).filter(ehArquivo);
@@ -171,7 +171,7 @@ const Dados = (function () {
     if (error) return; // sem foto não impede de usar o sistema
     data.forEach(d => { if (d.signedUrl) fotoUrls[d.path] = d.signedUrl; });
   }
-  const urlFoto = caminho => !caminho || caminho.startsWith('emoji:') ? null : caminho.startsWith('data:') ? caminho : (fotoUrls[caminho] || null);
+  const urlFoto = caminho => !caminho || caminho.startsWith('emoji:') ? null : /^(data:|img\/)/.test(caminho) ? caminho : (fotoUrls[caminho] || null);
 
   /* ───────── Escrita ───────── */
   async function inserirVarios(t, rows) {
@@ -213,6 +213,29 @@ const Dados = (function () {
   }
   async function removerFoto(caminho) {
     if (!demo && ehArquivo(caminho)) await sb.storage.from('fotos').remove([caminho]);
+  }
+
+  /* Catálogo: cadastra os produtos da pesquisa de mercado e liga as fotos. Roda uma vez só (marca nas preferências). */
+  const VERSAO_CATALOGO = 2;
+  const caminhoFoto = slug => slug && DadosFotos[slug] ? `img/produtos/${slug}.jpg` : null;
+  async function importarCatalogo() {
+    if (!S.produtos.length || (prefs().catalogo || 0) >= VERSAO_CATALOGO) return 0;
+    const semFotoReal = p => !p.foto || p.foto.startsWith('emoji:');
+    let n = 0;
+    for (const p of S.produtos.slice()) {
+      const slug = DadosCrescer.fotosIniciais[p.nome] || (DadosCrescer.ideias.find(i => i.nome === p.nome) || {}).foto;
+      if (semFotoReal(p) && caminhoFoto(slug)) { await atualizar('produtos', p.id, { foto: caminhoFoto(slug) }); n++; }
+    }
+    for (const i of DadosCrescer.ideias) {
+      if (S.produtos.some(p => p.nome.trim().toLowerCase() === i.nome.toLowerCase())) continue;
+      let cat = S.categorias.find(c => c.nome === i.cat);
+      if (!cat) cat = await inserir('categorias', { nome: i.cat, cor: '#2fc98e', ordem: S.categorias.length });
+      await inserir('produtos', { nome: i.nome, categoria_id: cat.id, custo_estimado: i.custo, preco_venda: i.preco, embalagem: i.emb, ativo: false, foto: caminhoFoto(i.foto),
+        observacoes: `Candidato da pesquisa de mercado de ${DadosCrescer.DATA}. Custo estimado, sem cotação. ${i.porque} Atenção: ${i.risco}` });
+      n++;
+    }
+    await salvarPrefs({ catalogo: VERSAO_CATALOGO });
+    return n;
   }
 
   /* ───────── Carga inicial (Fase 7) e demonstração ───────── */
@@ -289,6 +312,6 @@ const Dados = (function () {
     await carregarTudo();
   }
 
-  return { demo, S, TABELAS, CONFIG_PADRAO, iniciar, entrar, sair, trocarSenha, aoMudarSessao, carregarTudo, idadeCarga, cfg, prefs, salvarPrefs, catsOrdenadas, canaisOrdenados,
+  return { demo, S, TABELAS, CONFIG_PADRAO, iniciar, entrar, sair, trocarSenha, aoMudarSessao, carregarTudo, idadeCarga, cfg, prefs, salvarPrefs, importarCatalogo, catsOrdenadas, canaisOrdenados,
     inserir, inserirVarios, atualizar, remover, salvarConfig, enviarFoto, removerFoto, urlFoto, prepararFotos, semear, reiniciarDemo, traduzir };
 })();

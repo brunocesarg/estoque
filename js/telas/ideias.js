@@ -26,7 +26,7 @@ Telas.ideias = (function () {
       ${UI.chips([{ v: '', t: 'Todos' }, ...mercados.map(m => ({ v: m, t: m }))], filtro, 'id.filtro')}
       <div class="ideias-grade" style="margin-top:10px">${lista.map(({ i, m }) => {
         const tem = jaTem(i), cat = S.categorias.find(c => c.nome === i.cat);
-        return h`<section class="card"><div class="ideia-topo">${UI.miniatura({ nome: i.nome, foto: 'emoji:' + i.emoji, categoria_id: cat ? cat.id : null }, S.categorias)}
+        return h`<section class="card"><div class="ideia-topo">${UI.miniatura({ nome: i.nome, foto: DadosFotos[i.foto] ? `img/produtos/${i.foto}.jpg` : 'emoji:' + i.emoji, categoria_id: cat ? cat.id : null }, S.categorias)}
           <div style="min-width:0;flex:1"><b style="display:block;line-height:1.25">${i.nome}</b><small>${i.mercado} · custo estimado ${moeda(i.custo)} · venda sugerida ${moeda(i.preco)}</small></div></div>
           ${m ? h`<div class="dupla" style="margin-top:6px"><div class="dado"><div class="rot">Lucro por venda</div><div class="val ${m.r.lucro < 0 ? 'neg' : 'pos'}">${moeda(m.r.lucro)}</div><small>${pct(m.r.margem, 1)} de margem${m.r.margem < min ? ', abaixo do seu mínimo' : ''}</small></div>
             <div class="dado"><div class="rot">Melhor canal seu</div><div class="val" style="font-size:1rem">${m.c.nome}</div><small>retorno de ${pct(m.r.retorno)} sobre o custo</small></div></div>`
@@ -35,7 +35,7 @@ Telas.ideias = (function () {
           ${tem ? h`<a class="btn sec peq bloco" style="margin-top:12px" href="#/estoque/${tem.id}">${ic('ok')} Já está no cadastro</a>`
             : h`<button type="button" class="btn primario peq bloco" style="margin-top:12px" data-acao="id.adicionar" data-nome="${i.nome}">${ic('mais')} Adicionar como candidato</button>`}</section>`;
       })}</div>
-      <p class="mudo" style="margin:14px 4px;font-size:.82rem">As ilustrações são provisórias. Quando o produto chegar, abra a ficha dele e tire a foto de verdade pela câmera. Não incluí fotos de anúncios de terceiros porque elas têm dono.</p>`;
+      <p class="mudo" style="margin:14px 4px;font-size:.82rem">As fotos são de licença livre (Wikimedia Commons e Openverse), com o autor creditado na ficha de cada produto. Algumas são ilustrativas: mostram o tipo de produto, não o item do fornecedor. Quando o produto chegar, troque pela sua foto.</p>`;
   }
 
   UI.acoes['id.filtro'] = d => { filtro = d.v; App.atualizar(); };
@@ -43,7 +43,7 @@ Telas.ideias = (function () {
     const i = DadosCrescer.ideias.find(x => x.nome === d.nome);
     let cat = S.categorias.find(c => c.nome === i.cat);
     if (!cat) cat = await Dados.inserir('categorias', { nome: i.cat, cor: '#2fc98e', ordem: S.categorias.length });
-    await Dados.inserir('produtos', { nome: i.nome, categoria_id: cat.id, custo_estimado: i.custo, preco_venda: i.preco, embalagem: i.emb, ativo: false, foto: 'emoji:' + i.emoji,
+    await Dados.inserir('produtos', { nome: i.nome, categoria_id: cat.id, custo_estimado: i.custo, preco_venda: i.preco, embalagem: i.emb, ativo: false, foto: DadosFotos[i.foto] ? `img/produtos/${i.foto}.jpg` : 'emoji:' + i.emoji,
       observacoes: `Ideia da pesquisa de ${DadosCrescer.DATA}. Custo estimado, sem cotação. ${i.porque} Atenção: ${i.risco}` });
     App.atualizar(); UI.aviso('Adicionado ao estoque como candidato (inativo)');
   });

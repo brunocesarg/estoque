@@ -16,6 +16,7 @@ const App = (function () {
     { id: 'estoque', rotulo: 'Estoque', icone: 'estoque' },
     { id: 'simulador', rotulo: 'Simulador de preço', icone: 'simular' },
     { id: 'fornecedores', rotulo: 'Fornecedores', icone: 'fornecedores' },
+    { id: 'dicas', rotulo: 'Dicas de mercado', icone: 'ok' },
     { id: 'planejamento', rotulo: 'Planejamento', icone: 'alerta' },
     { id: 'ideias', rotulo: 'Ideias de produtos', icone: 'grade' },
     { id: 'plataformas', rotulo: 'Plataformas', icone: 'link' },
@@ -118,6 +119,8 @@ const App = (function () {
     }
     logado = true;
     montarCasca();
+    // Na primeira vez depois da atualização, cadastra os produtos novos da pesquisa e liga as fotos
+    Dados.importarCatalogo().then(n => { if (n) { atualizar(); UI.aviso(`${n} produtos e fotos da pesquisa adicionados ao Estoque`); } }).catch(e => console.error(e));
     if (!location.hash) location.hash = '#/painel';
     rotear(false);
   }

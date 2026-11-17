@@ -91,3 +91,10 @@ Três telas novas, no menu do PC e, no celular, no fim do Painel e em Ajustes:
 As metas e os próximos passos ficam guardados no banco, na coluna `painel_cartoes` da tabela `configuracoes`, sem precisar rodar SQL de novo.
 
 Para brincar sem mexer nos dados reais, abra o endereço com `?demo` no final.
+
+## Catálogo, fotos e dicas (17/11/2026)
+
+- Ao abrir o sistema pela primeira vez depois desta atualização, ele cadastra sozinho 16 produtos candidatos da pesquisa de mercado e liga fotos a 24 produtos. Roda uma vez só.
+- No **Estoque**, os candidatos aparecem numa seção própria, abaixo dos ativos, sem precisar ligar nenhuma chave.
+- As fotos são de licença livre (Wikimedia Commons e Openverse). Autor e licença estão em `CREDITOS.md` e na ficha de cada produto. Algumas são ilustrativas. Troque pela sua foto em Editar.
+- **Dicas de mercado**: dados de pet, moto e carro com a fonte, próximas datas de venda e recomendações calculadas no seu cadastro.
